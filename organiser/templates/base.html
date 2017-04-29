@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Organiser | {% block title %}{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="/static/bootstrap.min.js"></script>
+    <style>
+    .btn{
+        white-space:normal !important;
+        word-wrap:break-word;
+        word-break: normal;
+    }
+    .text-left
+    {
+        text-align: left !important;
+    }
+    </style>
+    <script>
+        // accordion collapse for non-panels
+        $(document).on('click', '[data-toggle=collapse][data-parent]', function(event) {
+            var $dataParent = $(this).attr('data-parent');
+            var $dataTarget = $(this).attr('data-target');
+            $(
+                    '[data-toggle="collapse"][data-parent="' + 
+                    $dataParent + 
+                    '"][data-target!="' + 
+                    $dataTarget + 
+                    '"]').each(function(){
+
+                $($(this).attr('data-target')).collapse("hide");
+            });
+            event.preventDefault();
+        });
+        $(document).on('submit', 'form[data-async]', function(event) {
+            var $form = $(this);
+            var $target = $($form.attr('data-target'));
+            $.ajax({
+                type: $form.attr('method'),
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                cache: false,
+                success: function(data, status) {
+                    $.each(data,function(key,value){
+                        if(key == "close"){
+                            if(data['close'] === true){
+                                $form.closest(".collapse").collapse("hide");
+                            }
+                        }else if(key == "errors"){
+                            $target.html(data[key]);
+                        }else{
+                            if('data' in data[key]){
+                                $(key).html(data[key]['data']);
+                            }
+                            if('addClass' in data[key]){
+                                for(i in data[key]['addClass']){
+                                    $(key).addClass(data[key]['addClass'][i]);
+                                }
+                            }
+                            if('removeClass' in data[key]){
+                                for(i in data[key]['removeClass']){
+                                    $(key).removeClass(data[key]['removeClass'][i]);
+                                }
+                            }
+                            if('appendTable' in data[key]){
+                                $(key + ' > tbody:last-child').append(data[key]['appendTable']);
+                            }
+                            if('collapse' in data[key]){
+                                $(key).collapse(data[key]['collapse'])
+                            }
+                            if('activateTooltip' in data[key]){
+                                $(key + ' [data-toggle="tooltip"]').tooltip();
+                            }
+                        }
+                    });
+                },
+                error: function (result) {
+                    alert(result);
+                }
+            });
+            event.preventDefault();
+        });
+
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+</head>
+<body>
+<div class="container-fluid">
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Organiser</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/">Home</a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Calendar
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/calendar/day/">Day</a></li>
+                        <li><a href="/calendar/week/">Week</a></li>
+                        <li><a href="/calendar/month/">Month</a></li>
+                        <li><a href="/calendar/year/">Year</a></li>
+                    </ul>
+                </li>
+                <li class="active"><a href="/lists/">Lists</a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Account
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/auth/change-email/">change e-mail</a></li>
+                        <li><a href="/auth/change-password/">change password</a></li>
+                        <li><a href="/auth/logout/">logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<br>
+<div class="page-header">
+    <h1>{% block page_header %}{{ self.title() }}{% endblock %}</h1>
+</div>
+{% block content %}{% endblock %}
+</div>
+</body>
+</html>
+

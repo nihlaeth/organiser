@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+{% for message in successes %}
+<div class="alert alert-success alert-dismissable fade in">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    {{ message }}
+</div>
+{% endfor %}
+
+{% for message in errors %}
+<div class="alert alert-danger alert-dismissable fade in">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    {{ message }}
+</div>
+{% endfor %}
+
+{% endblock %}
